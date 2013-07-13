@@ -7,10 +7,7 @@
 #define	TREE_H
 
 #include <QtCore/QList>
-#include <iostream>
 #include "RobotComponents.h"
-
-using namespace std;
 
 /*
  * TODO
@@ -39,33 +36,31 @@ private:
         
         ~Node()
         {
-            Q_FOREACH (Node* child, children) {
-                delete child;
-            }
+            qDeleteAll(children);
         }
     };
     
-    Node* m_root;
+    /* Used to compare nodes inside the tree */
     typedef bool (*ComparisonFunction)(T, T);
     ComparisonFunction m_comparison;
     
-    bool compareNodes(Node* n1, Node* n2)
-    {
-        return (n1->value == n2->value);
-    }
-    
+    Node* m_root;
+
 public:
     Tree(T rootValue, ComparisonFunction f = Tree<T>::defaultComparison)
         : m_root( new Node(rootValue, 0) )
         , m_comparison(f)
     {}
-        
-    Tree(ComparisonFunction f = Tree<T>::componentComparison)
+
+    Tree(ComparisonFunction f = Tree<T>::defaultComparison)
         : m_root(0)
         , m_comparison(f)
     {}
     
-    ~Tree() {}
+    ~Tree()
+    {
+        delete m_root;
+    }
     
     void setRoot(T rootValue)
     {
@@ -84,19 +79,17 @@ public:
             return false;
         }
         
-        cout << nodeQueue.size() << endl;
         nodeQueue.append(m_root);
-        cout << nodeQueue.size() << endl;
         
         while (!nodeQueue.isEmpty()) {
-            Node* n = nodeQueue.takeFirst();
+            Node* p = nodeQueue.takeFirst();
             
-            if (m_comparison(n->value, parent)) {
-                n->children.append( new Node(nValue, n) );
+            if (m_comparison(p->value, parent)) {
+                p->children.append( new Node(nValue, p) );
                 return true;
             }
             
-            nodeQueue.append(n->children);
+            nodeQueue.append(p->children);
         }
         
         return false;
@@ -115,7 +108,7 @@ public:
         while (!nodeQueue.isEmpty()) {
             Node* n = nodeQueue.takeFirst();
             
-            if (n->value == parent) {
+            if (m_comparison(n->value, parent)) {
                 for (typename QList< Tree<T>::Node* >::iterator it = n->children.begin(); it != n->children.end(); it++) {
                     if ((*it)->value == nValue) {
                         n->children.erase(it);
@@ -145,7 +138,7 @@ public:
         while (!nodeQueue.isEmpty()) {
             Node* n = nodeQueue.takeFirst();
             
-            if (n->value == node) {
+            if (m_comparison(n->value, node)) {
                 QList<T> values;
                 
                 Q_FOREACH (Node* child, n->children) {
@@ -174,7 +167,7 @@ public:
         while (!nodeQueue.isEmpty()) {
             Node* n = nodeQueue.takeFirst();
             
-            if (n->value == node) {
+            if (m_comparison(n->value, node)) {
                 Q_ASSERT(n->parent != 0);
                 return n->parent->value;
             }
@@ -208,14 +201,12 @@ public:
     
     static bool defaultComparison(T a, T b)
     {
-        cout << "default called" << endl;
         return (a == b);
     }
     
     static bool componentComparison(RobotComponent* c1, RobotComponent* c2)
     {
-        cout << "component called" << endl;
-        return c1->getId() == c2->getId();
+        return (c1->getName() == c2->getName());
     }
 };
 
