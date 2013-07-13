@@ -1,16 +1,16 @@
 #include "RobotComponents.h"
 
-RobotComponent::RobotComponent(int id, ComponentType t)
+RobotComponent::RobotComponent(QString name, ComponentType t)
     : m_type(t)
-    , m_id(id)
+    , m_name(name)
 {}
 
 RobotComponent::~RobotComponent()
 {}
 
-int RobotComponent::getId()
+int RobotComponent::getName()
 {
-    return m_id;
+    return m_name;
 }
 
 double RobotComponent::getParameter(int i) const
@@ -25,11 +25,12 @@ RobotComponent::ComponentType RobotComponent::getType()
 
 void RobotComponent::setParameter(int i, double param)
 {
-    if (i >= m_configParameters.size()) {
-        m_configParameters.insert(i, param);
-    } else {
-        m_configParameters[i] = param;
-    }
+    m_configParameters.insert(i, param);
+}
+
+void RobotComponent::appendParameter(double param)
+{
+    m_configParameters.append(param);
 }
 
 void RobotComponent::setParameters(const QList<double>& params)
@@ -37,8 +38,8 @@ void RobotComponent::setParameters(const QList<double>& params)
     m_configParameters = params;
 }
 
-Joint::Joint(int id, JointType t, double p)
-    : RobotComponent(id, RobotComponent::Joint)
+Joint::Joint(QString name, JointType t, double p)
+    : RobotComponent(name, RobotComponent::Joint)
     , m_jointType(t)
 {
     setParameter(0, p);
@@ -51,3 +52,10 @@ Joint::JointType Joint::getJointType() const
 {
     return m_jointType;
 }
+
+DummyComponent::DummyComponent(QString name)
+    : RobotComponent(name, RobotComponent::Dummy)
+{}
+
+DummyComponent::~DummyComponent()
+{}
