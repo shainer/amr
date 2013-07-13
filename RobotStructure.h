@@ -8,35 +8,20 @@
 
 #include "Tree.h"
 
-//class RobotStructure
-//{
-//private:
-//    class RobotComponentNode
-//    {
-//    public:
-//        RobotComponent* component;
-//        
-//        RobotComponentNode(RobotComponent* c)
-//            : component(c)
-//        {}
-//        
-//        bool operator==( const RobotComponentNode& other )
-//        {
-//            return component->getId() == other.component->getId();
-//        }
-//    };
-//    
-//   Tree<RobotComponentNode> jointTree;
-//
-//public:
-//    RobotStructure();
-//    ~RobotStructure();
-//    
-//    void setRoot(RobotComponent* root);
-//    void addComponent(RobotComponent* comp, int parent);
-//    RobotComponent* getComponent(int id) const;
-//    QList< RobotComponent* > getChildrenOf(int id) const;
-//    //void assignConfiguration(Configuration c);
-//};
+class RobotStructure
+{
+private:    
+   Tree< RobotComponent* > m_robotTree;
+
+public:
+    RobotStructure();
+    ~RobotStructure();
+    
+    void addComponent(RobotComponent* comp, QString parent = "");
+    
+    RobotComponent* getComponent(QString name) const;
+    QList< RobotComponent* > getChildrenOf(QString name) const;
+    RobotComponent* getParentOf(QString name) const;
+};
 
 #endif
